@@ -1,6 +1,6 @@
 # Amazon Connect Bedrock Contact Center
 
-> Production-style AI contact center architecture built with Amazon Connect, Amazon Lex V2, AWS Lambda, Amazon Bedrock Agents, DynamoDB, and AWS Knowledge Bases for voice and chat customer support automation.
+AI-powered contact center built with Amazon Connect, Amazon Lex V2, AWS Lambda, Amazon Bedrock Agents, DynamoDB, and AWS Knowledge Bases for voice and chat customer support automation.
 
 ![AWS](https://img.shields.io/badge/AWS-Amazon%20Connect-FF9900?style=flat&logo=amazonaws)
 ![Amazon Bedrock](https://img.shields.io/badge/Amazon-Bedrock-232F3E?style=flat&logo=amazonaws)
@@ -12,9 +12,9 @@
 
 ## Overview
 
-This project demonstrates a production-style AI-powered contact center built on AWS using Amazon Connect, Amazon Lex V2, AWS Lambda, Amazon Bedrock Agents, DynamoDB, and a Knowledge Base. It supports both voice and chat interactions and is designed to automate common customer support workflows such as answering policy questions, checking order status, supporting return-related conversations, transferring users to a live agent, and ending the conversation cleanly when the user is done.
+This project demonstrates an AI-powered contact center built on AWS using Amazon Connect, Amazon Lex V2, AWS Lambda, Amazon Bedrock Agents, DynamoDB, and a Knowledge Base. It supports both voice and chat interactions and is designed to automate common customer support workflows such as answering policy questions, checking order status, supporting return-related conversations, transferring users to a live agent, and ending the conversation cleanly when the user is done.
 
-The solution uses Amazon Connect as the customer interaction layer, Amazon Lex V2 as the conversational bridge, AWS Lambda as the orchestration layer, and Amazon Bedrock as the intelligence engine that drives reasoning, workflow decisions, and action handling. The result is a serverless, event-driven support system that combines conversational AI with real contact-center routing logic.
+The solution uses Amazon Connect as the customer interaction layer, Amazon Lex V2 as the conversational bridge, AWS Lambda as the orchestration layer, and Amazon Bedrock as the reasoning engine that drives workflow decisions and action handling. The result is a serverless, event-driven support system that combines conversational AI with real contact-center routing logic.
 
 ---
 
@@ -59,42 +59,35 @@ This solution automates those tier-1 support journeys by combining Amazon Connec
 ---
 
 ## Architecture
+
 ![Architecture Diagram](docs/images/architecture-diagram.jpg)
+
 This project follows a serverless contact center architecture built entirely on AWS managed services.
 
 Amazon Connect serves as the entry point for customer calls and chats and is responsible for managing the overall contact flow. Amazon Lex V2 receives customer utterances from Connect and invokes an AWS Lambda function through the dialog code hook. That Lambda function acts as the central integration layer of the solution. It receives the Lex event, extracts the user message and session context, invokes the Amazon Bedrock Agent using the Bedrock Agent Runtime API, and converts the Bedrock response into a valid Lex response with session attributes that Amazon Connect can use for routing decisions.
 
-Amazon Bedrock is the main intelligence layer in the system. The Bedrock Agent is configured with Claude Haiku, guardrails, action groups, and business instructions so it can answer support questions, gather missing information such as order ID or return reason, trigger escalation when a customer asks for a human, and signal when the conversation should end. Backend operational data such as orders and return workflows are handled through DynamoDB-backed tool paths, while broader policy and company information is supplied through a Knowledge Base.
+Amazon Bedrock is the main reasoning layer in the system. The Bedrock Agent is configured with Claude Haiku, guardrails, action groups, and business instructions so it can answer support questions, gather missing information such as order ID or return reason, trigger escalation when a customer asks for a human, and signal when the conversation should end. Backend operational data such as orders and return workflows are handled through DynamoDB-backed tool paths, while broader policy and company information is supplied through a Knowledge Base.
 
 At runtime, the interaction flows through the services in this order: Amazon Connect receives the customer input, Lex passes the input to Lambda, Lambda invokes the Bedrock Agent, Bedrock decides what to do and returns text or an action signal, Lambda translates that into a Lex response, and Connect reads the returned session attributes to determine whether the contact should continue, transfer to a queue, or disconnect.
 
----
+### Screenshots
 
-### Amazon Connect Flow
+#### Amazon Connect Flow
 ![Amazon Connect Flow](docs/images/amazon-connect-flow.png)
-
 ---
-
-### Lex Bot Configuration
+#### Lex Bot Configuration
 ![Lex Bot Configuration](docs/images/lex-bot-config.png)
-
 ---
-
-### Bedrock Agent Action Group
+#### Bedrock Agent Action Group
 ![Bedrock Agent Action Group](docs/images/bedrock-agent-action-group.png)
 ---
-
-### Knowledge Base Configuration
+#### Knowledge Base Configuration
 ![Knowledge Base Configuration](docs/images/knowledge-base-config.png)
-
 ---
-
-### Guardrails in Bedrock
-![KB Guardrail in Bedrock](docs/images/kb-guardrail-in-bedrock.png)
-
+#### Guardrails in Bedrock
+![Guardrails in Bedrock](docs/images/kb-guardrail-in-bedrock.png)
 ---
-
-### Connect Test Chat
+#### Connect Test Chat
 ![Connect Test Chat](docs/images/connect_test_chat.png)
 
 ---
@@ -102,6 +95,7 @@ At runtime, the interaction flows through the services in this order: Amazon Con
 ## Features
 
 ### Customer Experience
+
 - General support conversations over voice and chat
 - Order status lookup with order ID validation
 - Return request guidance with reason capture
@@ -111,6 +105,7 @@ At runtime, the interaction flows through the services in this order: Amazon Con
 - Voice interruption support during spoken responses
 
 ### AI and Orchestration
+
 - Amazon Bedrock Agent used as the primary decision-making layer
 - Action groups for escalation and end-conversation handling
 - Guardrails for safer, more controlled responses
@@ -118,6 +113,7 @@ At runtime, the interaction flows through the services in this order: Amazon Con
 - Session-aware conversations using shared session IDs between Lex and Bedrock
 
 ### Operations
+
 - CloudWatch logging for Lambda and runtime debugging
 - Contact flow routing based on Lex session attributes
 - Voice and chat channel support in the same architecture
@@ -128,6 +124,7 @@ At runtime, the interaction flows through the services in this order: Amazon Con
 ## Tech Stack
 
 ### AWS Services
+
 - Amazon Connect
 - Amazon Lex V2
 - AWS Lambda
@@ -143,6 +140,7 @@ At runtime, the interaction flows through the services in this order: Amazon Con
 - AWS IAM
 
 ### Models and AI Configuration
+
 - Claude Haiku as the Bedrock Agent model
 - Titan Text Embeddings V2 for Knowledge Base embeddings
 
@@ -183,54 +181,89 @@ amazon-connect-bedrock-contact-center/
 
 When a customer starts a voice call or chat session, the interaction begins in Amazon Connect. The contact flow plays the greeting and sends the customer’s input to Amazon Lex V2 through the Get customer input block. Lex does not perform the main support reasoning in this project; instead, it serves as the input layer and invokes Lambda with the user’s utterance and session state.
 
-The Lambda function acts as the orchestration bridge between Lex and Bedrock. It takes the user message, reuses the Lex session ID as the Bedrock session ID, and calls the Bedrock Agent through invoke_agent. The Bedrock Agent then decides whether to answer directly, ask for missing information, trigger a business operation such as order lookup, escalate to a live agent, or end the conversation. If the response is a normal support answer, Lambda packages that answer into a valid Lex V2 response and returns it with ElicitIntent so the conversation can continue. If the agent signals escalation, Lambda returns a Lex response with escalate=true. If the agent signals end conversation, Lambda returns endConversation=true.
+The Lambda function acts as the orchestration bridge between Lex and Bedrock. It takes the user message, reuses the Lex session ID as the Bedrock session ID, and calls the Bedrock Agent through invoke_agent. The Bedrock Agent then decides whether to answer directly, ask for missing information, trigger a business operation such as order lookup, escalate to a live agent, or end the conversation.
 
-Amazon Connect then reads those session attributes from Lex. If endConversation=true, the contact flow routes to a disconnect block. If escalate=true, the flow routes to the configured working queue and transfers the contact to a live agent. If neither is true, the flow loops back to Get customer input and the conversation continues naturally. This design makes Bedrock the actual reasoning engine, while Connect handles routing and Lex handles conversational transport.
+If the response is a normal support answer, Lambda packages that answer into a valid Lex V2 response and returns it with ElicitIntent so the conversation can continue. If the agent signals escalation, Lambda returns a Lex response with escalate=true. If the agent signals end conversation, Lambda returns endConversation=true.
+
+Amazon Connect then reads those session attributes from Lex. If endConversation=true, the contact flow routes to a disconnect block. If escalate=true, the flow routes to the configured working queue and transfers the contact to a live agent. If neither is true, the flow loops back to Get customer input and the conversation continues naturally.
+
+This design makes Bedrock the reasoning engine, while Connect handles routing and Lex handles conversational transport.
 
 ## Example Customer Interaction
-Order Status
 
+### Order Status
 Customer: “I need help with my order.”
 Assistant: “Sure, I can help with that. Please provide your order ID.”
 Customer: “ORD10001”
 Assistant: “Your order ORD10001 has been shipped and is currently in transit.”
 
-Agent Escalation
+### Agent Escalation
 
 Customer: “Can you transfer me to a human agent?”
 Assistant: “Sure, I’ll connect you to a support agent now.”
 
-End Conversation
+### End Conversation
 
 Customer: “That’s all, thank you.”
 Assistant: “You’re welcome. Have a great day.”
 
 ## Knowledge Base
 
-The Knowledge Base was designed to support broader support and company-related questions, including return policy, refund timelines, shipping details, order cancellation rules, loyalty program information, and general company information such as why customers should buy from the brand. Titan Text Embeddings V2 was used during the knowledge-base setup, and vector storage was explored with OpenSearch Serverless and Amazon S3 Vectors.
+The Knowledge Base was designed to support broader support and company-related questions, including return policy, refund timelines, shipping details, order cancellation rules, loyalty program information, and general company information such as why customers should buy from the brand.
+
+Titan Text Embeddings V2 was used during the knowledge-base setup, and vector storage was explored with OpenSearch Serverless and Amazon S3 Vectors.
 
 ## Guardrails
 
-Bedrock Guardrails were configured to keep the assistant focused on company support topics, reduce unsafe or off-topic behavior, and improve response consistency. Additional prompt constraints were added so the assistant stays professional, avoids revealing model identity, and keeps answers short and practical for contact-center interactions.
+The Knowledge Base was designed to support broader support and company-related questions, including return policy, refund timelines, shipping details, order cancellation rules, loyalty program information, and general company information such as why customers should buy from the brand.
+
+Titan Text Embeddings V2 was used during the knowledge-base setup, and vector storage was explored with OpenSearch Serverless and Amazon S3 Vectors.Bedrock Guardrails were configured to keep the assistant focused on company support topics, reduce unsafe or off-topic behavior, and improve response consistency.
+
+Additional prompt constraints were added so the assistant:
+
+* stays professional
+* avoids revealing model identity
+* keeps answers short and practical for contact-center interactions
+* asks one follow-up question at a time
 
 ## Challenges and Solutions
 
-One of the main challenges in this project was making operational actions work reliably in a conversational flow. Plain-text responses such as “Goodbye” or “I’ll transfer you” were not enough on their own, because Amazon Connect requires explicit machine-readable session attributes to know whether to disconnect or route to a queue. This was solved by using Bedrock action groups and having Lambda translate those actions into Lex session attributes such as endConversation and escalate.
+One of the main challenges in this project was making operational actions work reliably in a conversational flow. Plain-text responses such as “Goodbye” or “I’ll transfer you” were not enough on their own, because Amazon Connect requires explicit machine-readable session attributes to know whether to disconnect or route to a queue.
+
+This was solved by using Bedrock action groups and having Lambda translate those actions into Lex session attributes such as endConversation and escalate.
 
 Another challenge was making the architecture work consistently across both chat and voice channels. Voice required additional tuning for interruption behavior, shorter responses, and contact-flow routing. There were also several integration issues around Lex response formatting, Lambda syntax/runtime errors, Bedrock action invocation modes, Knowledge Base vector-store setup, and cleanup of failed Knowledge Base resources after OpenSearch resources had already been deleted.
 
 ## Production Readiness
 
-This project was built and tested as a production-style AWS workflow. It uses managed AWS services end to end, supports both voice and chat, separates orchestration from reasoning, uses explicit routing signals for operational actions, and includes logging and debugging through CloudWatch. The design is modular enough to be extended with more support workflows, richer backend APIs, analytics, or full infrastructure-as-code in a future version.
+This project was built and tested as a realistic AWS workflow. It uses managed AWS services end to end, supports both voice and chat, separates orchestration from reasoning, uses explicit routing signals for operational actions, and includes logging and debugging through CloudWatch.
+
+The design is modular enough to be extended with more support workflows, richer backend APIs, analytics, or full infrastructure-as-code in a future version.
 
 ## Future Enhancements
-Full Infrastructure as Code for Connect, Lex, and Bedrock configuration.  
-CI/CD for Lambda, prompts, and knowledge-base document updates.  
-Expanded Knowledge Base coverage for broader support use cases  
-Additional business workflows such as order cancellation and refund status  
-Analytics dashboard for conversation and transfer metrics  
-Enhanced prompt tuning for even shorter and faster responses  
+
+- **Nova Sonic** — Replace Lex + Polly with a speech-to-speech model for faster responses and more natural real-time barge-in handling
+- **Proactive Notifications** — Automatically call customers when an order ships using an Amazon Connect outbound contact flow
+- **Real-Time Agent Assist** — Provide AI suggestions, live transcription, and auto-summary for human agents during escalated calls using Amazon Q in Connect
+- **Omnichannel Support** — Extend the same bot experience to WhatsApp and SMS using Amazon Connect omnichannel routing
+- **Predictive Callbacks** — Offer callbacks when queues are busy instead of keeping customers on hold
+- **Emotion Detection + Auto Escalation** — Use Contact Lens to detect customer frustration in real time and escalate to a priority agent when needed
+- **Self-Learning Bot** — Analyze failed conversations on a schedule, suggest Knowledge Base improvements, and tune guardrails over time
+- **Multi-Language Auto-Detection** — Detect the customer’s language automatically and continue the conversation in that language  
 
 ## What I Learned
 
-This project provided hands-on experience with how Amazon Connect, Amazon Lex V2, AWS Lambda, and Amazon Bedrock work together in a real contact-center use case. The biggest technical learning was that Bedrock can be used as the true reasoning layer while Lex and Connect act as the transport and routing layers. It also highlighted the importance of session attributes, action-group handling, Bedrock alias/version management, Lambda debugging, Knowledge Base vector-store setup, and voice-specific behavior such as interruption support.
+This project provided hands-on experience with how Amazon Connect, Amazon Lex V2, AWS Lambda, and Amazon Bedrock work together in a real contact-center use case.
+
+The biggest technical learning was that Bedrock can be used as the true reasoning layer while Lex and Connect act as the transport and routing layers. It also highlighted the importance of session attributes, action-group handling, Bedrock alias/version management, Lambda debugging, Knowledge Base vector-store setup, and voice-specific behavior such as interruption support.
+
+## Author
+
+**Nagaraju Thaduri**  
+**Domain:** Amazon Connect | Cloud Contact Center | AWS  
+**Region:** us-east-1  
+**Year:** 2026
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

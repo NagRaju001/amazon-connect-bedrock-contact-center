@@ -45,7 +45,7 @@ The solution uses Amazon Connect as the customer interaction layer, Amazon Lex V
 - [Guardrails](#guardrails)
 - [Challenges and Solutions](#challenges-and-solutions)
 - [Production Readiness](#production-readiness)
-- [Future Enhancements](#future-enhancements)
+- [Future Ideas](#future-ideas)
 - [What I Learned](#what-i-learned)
 
 ---
@@ -215,16 +215,14 @@ Titan Text Embeddings V2 was used during the knowledge-base setup, and vector st
 
 ## Guardrails
 
-The Knowledge Base was designed to support broader support and company-related questions, including return policy, refund timelines, shipping details, order cancellation rules, loyalty program information, and general company information such as why customers should buy from the brand.
-
-Titan Text Embeddings V2 was used during the knowledge-base setup, and vector storage was explored with OpenSearch Serverless and Amazon S3 Vectors.Bedrock Guardrails were configured to keep the assistant focused on company support topics, reduce unsafe or off-topic behavior, and improve response consistency.
+Bedrock Guardrails were configured to keep the assistant focused on company support topics, reduce unsafe or off-topic behavior, and improve response consistency.
 
 Additional prompt constraints were added so the assistant:
 
-* stays professional
-* avoids revealing model identity
-* keeps answers short and practical for contact-center interactions
-* asks one follow-up question at a time
+- stays professional
+- avoids revealing model identity
+- keeps answers short and practical for contact-center interactions
+- asks one follow-up question at a time
 
 ## Challenges and Solutions
 
@@ -240,7 +238,7 @@ This project was built and tested as a realistic AWS workflow. It uses managed A
 
 The design is modular enough to be extended with more support workflows, richer backend APIs, analytics, or full infrastructure-as-code in a future version.
 
-## Future Enhancements
+## Future Ideas
 
 - **Nova Sonic** — Replace Lex + Polly with a speech-to-speech model for faster responses and more natural real-time barge-in handling
 - **Proactive Notifications** — Automatically call customers when an order ships using an Amazon Connect outbound contact flow

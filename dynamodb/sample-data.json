@@ -1,0 +1,27 @@
+{
+  "orders": [
+    {
+      "orderId": "ORD10001",
+      "status": "SHIPPED",
+      "trackingNumber": "TRK10001",
+      "expectedDelivery": "2026-03-15",
+      "customerId": "CUST001"
+    },
+    {
+      "orderId": "ORD10002",
+      "status": "PROCESSING",
+      "trackingNumber": "TRK10002",
+      "expectedDelivery": "2026-03-20",
+      "customerId": "CUST002"
+    }
+  ],
+  "returns": [
+    {
+      "returnId": "RET001",
+      "orderId": "ORD10001",
+      "status": "PENDING",
+      "reason": "Changed mind",
+      "createdAt": "2026-03-19"
+    }
+  ]
+}

@@ -124,25 +124,30 @@ At runtime, the interaction flows through the services in this order: Amazon Con
 ```text
 amazon-connect-bedrock-contact-center/
 │
-├── docs/
-│   ├── screenshots/
-│   ├── architecture.md
-│   ├── setup-guide.md
-│   └── testing-checklist.md
+├── README.md
+├── LICENSE
+├── .gitignore
 │
 ├── lambda/
 │   └── techmart-connect-bridge.py
 │
-├── prompts/
-│   └── bedrock-agent-system-prompt.md
-│
-├── kb/
-│   └── techmart-customer-service-policy.md
+├── dynamodb/
+│   └── sample-data.json
 │
 ├── connect/
 │   └── contact-flow-notes.md
 │
-└── README.md
+├── docs/
+│   ├── images/
+│   │   ├── amazon-connect-flow.png
+│   │   ├── architecture-diagram.jpg
+│   │   ├── bedrock-agent-action-group.png
+│   │   ├── connect_test_chat.png
+│   │   ├── kb-guardrail-in-bedrock.png
+│   │   ├── knowledge-base-config.png
+│   │   └── lex-bot-config.png
+│   ├── setup-guide.md
+│   └── testing-checklist.md
 ```
 
 ## How It Works

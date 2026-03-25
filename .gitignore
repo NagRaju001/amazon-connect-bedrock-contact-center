@@ -2,3 +2,23 @@
 Thumbs.db
 .vscode/
 .idea/
+# local env / secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+
+# logs
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# raw exports / private files
+private/
+connect/*.json
+docs/screenshots/*.drawio

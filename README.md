@@ -59,7 +59,7 @@ This solution automates those tier-1 support journeys by combining Amazon Connec
 ---
 
 ## Architecture
-
+![Architecture Diagram](docs/images/architecture-diagram.jpg)
 This project follows a serverless contact center architecture built entirely on AWS managed services.
 
 Amazon Connect serves as the entry point for customer calls and chats and is responsible for managing the overall contact flow. Amazon Lex V2 receives customer utterances from Connect and invokes an AWS Lambda function through the dialog code hook. That Lambda function acts as the central integration layer of the solution. It receives the Lex event, extracts the user message and session context, invokes the Amazon Bedrock Agent using the Bedrock Agent Runtime API, and converts the Bedrock response into a valid Lex response with session attributes that Amazon Connect can use for routing decisions.
@@ -67,6 +67,35 @@ Amazon Connect serves as the entry point for customer calls and chats and is res
 Amazon Bedrock is the main intelligence layer in the system. The Bedrock Agent is configured with Claude Haiku, guardrails, action groups, and business instructions so it can answer support questions, gather missing information such as order ID or return reason, trigger escalation when a customer asks for a human, and signal when the conversation should end. Backend operational data such as orders and return workflows are handled through DynamoDB-backed tool paths, while broader policy and company information is supplied through a Knowledge Base.
 
 At runtime, the interaction flows through the services in this order: Amazon Connect receives the customer input, Lex passes the input to Lambda, Lambda invokes the Bedrock Agent, Bedrock decides what to do and returns text or an action signal, Lambda translates that into a Lex response, and Connect reads the returned session attributes to determine whether the contact should continue, transfer to a queue, or disconnect.
+
+---
+
+### Amazon Connect Flow
+![Amazon Connect Flow](docs/images/amazon-connect-flow.png)
+
+---
+
+### Lex Bot Configuration
+![Lex Bot Configuration](docs/images/lex-bot-config.png)
+
+---
+
+### Bedrock Agent Action Group
+![Bedrock Agent Action Group](docs/images/bedrock-agent-action-group.png)
+---
+
+### Knowledge Base Configuration
+![Knowledge Base Configuration](docs/images/knowledge-base-config.png)
+
+---
+
+### Guardrails in Bedrock
+![KB Guardrail in Bedrock](docs/images/kb-guardrail-in-bedrock.png)
+
+---
+
+### Connect Test Chat
+![Connect Test Chat](docs/images/connect_test_chat.png)
 
 ---
 
